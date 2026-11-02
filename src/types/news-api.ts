@@ -1,3 +1,11 @@
+export enum HttpMethod {
+    Get = 'GET',
+}
+
+export type QueryOptions = Readonly<Record<string, string>>;
+
+export type ResponseCallback<T> = (data: T) => void;
+
 export interface NewsSource {
     id: string;
     name: string;
@@ -48,5 +56,5 @@ export interface ApiResponseMap {
 
 export interface RequestOptions<K extends keyof ApiResponseMap> {
     endpoint: K;
-    options?: Record<string, string>;
+    options?: QueryOptions;
 }

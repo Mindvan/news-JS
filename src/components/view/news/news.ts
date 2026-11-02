@@ -2,16 +2,16 @@ import type { Article } from '../../../types/news-api';
 import './news.css';
 
 class News {
-    draw(data: Article[]): void {
-        const news = data.length >= 10 ? data.filter((_item, idx) => idx < 10) : data;
+    draw(data: ReadonlyArray<Article>): void {
+        const news: Article[] = data.slice(0, 10);
 
-        const fragment = document.createDocumentFragment();
-        const newsItemTemp = document.querySelector<HTMLTemplateElement>('#newsItemTemp');
+        const fragment: DocumentFragment = document.createDocumentFragment();
+        const newsItemTemp: HTMLTemplateElement | null = document.querySelector<HTMLTemplateElement>('#newsItemTemp');
 
         if (!newsItemTemp) throw new Error('Missing template: newsItemTemp');
 
-        news.forEach((item, idx) => {
-            const newsClone = newsItemTemp.content.cloneNode(true) as DocumentFragment;
+        news.forEach((item: Article, idx: number): void => {
+            const newsClone: DocumentFragment = newsItemTemp.content.cloneNode(true) as DocumentFragment;
 
             if (idx % 2) newsClone.querySelector<HTMLElement>('.news__item')!.classList.add('alt');
 

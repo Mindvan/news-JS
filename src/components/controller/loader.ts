@@ -1,21 +1,22 @@
-import type { ApiResponseMap, RequestOptions } from '../../types/news-api';
+import { HttpMethod } from '../../types/news-api';
+import type { ApiResponseMap, QueryOptions, RequestOptions, ResponseCallback } from '../../types/news-api';
 
 class Loader {
-    private baseLink: string;
-    private options: Record<string, string>;
+    private readonly baseLink: string;
+    private readonly options: QueryOptions;
 
-    constructor(baseLink: string, options: Record<string, string>) {
+    constructor(baseLink: string, options: QueryOptions) {
         this.baseLink = baseLink;
         this.options = options;
     }
 
     getResp<K extends keyof ApiResponseMap>(
         { endpoint, options = {} }: RequestOptions<K>,
-        callback: (data: ApiResponseMap[K]) => void = () => {
+        callback: ResponseCallback<ApiResponseMap[K]> = (): void => {
             console.error('No callback for GET response');
         }
     ): void {
-        this.load('GET', endpoint, callback, options);
+        this.load(HttpMethod.Get, endpoint, callback, options);
     }
 
     errorHandler(res: Response): Response {
@@ -28,11 +29,11 @@ class Loader {
         return res;
     }
 
-    makeUrl(options: Record<string, string>, endpoint: string): string {
-        const urlOptions = { ...this.options, ...options };
-        let url = `${this.baseLink}${endpoint}?`;
+    makeUrl(options: QueryOptions, endpoint: keyof ApiResponseMap): string {
+        const urlOptions: QueryOptions = { ...this.options, ...options };
+        let url: string = `${this.baseLink}${endpoint}?`;
 
-        Object.keys(urlOptions).forEach((key) => {
+        Object.keys(urlOptions).forEach((key: string): void => {
             url += `${key}=${urlOptions[key]}&`;
         });
 
@@ -40,16 +41,16 @@ class Loader {
     }
 
     load<K extends keyof ApiResponseMap>(
-        method: string,
+        method: HttpMethod,
         endpoint: K,
-        callback: (data: ApiResponseMap[K]) => void,
-        options: Record<string, string> = {}
+        callback: ResponseCallback<ApiResponseMap[K]>,
+        options: QueryOptions = {}
     ): void {
         fetch(this.makeUrl(options, endpoint), { method })
             .then(this.errorHandler)
-            .then((res): Promise<ApiResponseMap[K]> => res.json())
-            .then((data) => callback(data))
-            .catch((err) => console.error(err));
+            .then((res: Response): Promise<ApiResponseMap[K]> => res.json())
+            .then((data: ApiResponseMap[K]): void => callback(data))
+            .catch((err: unknown): void => console.error(err));
     }
 }
 
