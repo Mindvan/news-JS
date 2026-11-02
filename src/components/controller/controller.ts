@@ -23,6 +23,11 @@ class AppController extends AppLoader {
                 if (sourceId === null) return;
                 if (newsContainer.getAttribute('data-source') !== sourceId) {
                     newsContainer.setAttribute('data-source', sourceId);
+                    newsContainer
+                        .querySelectorAll<HTMLButtonElement>('.source__item')
+                        .forEach((button: HTMLButtonElement): void => {
+                            button.setAttribute('aria-pressed', String(button.dataset.sourceId === sourceId));
+                        });
                     super.getResp(
                         {
                             endpoint: 'everything',
